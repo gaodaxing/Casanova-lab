@@ -1,0 +1,10 @@
+promergecsvAD<-function(directory1,directory2,directory3,dirhi){
+  k1<-procsvAD(directory1,dirhi)
+  k2<-procsvAD(directory2,dirhi)
+  k3<-procsvAD(directory3,dirhi)
+  k<-list(k1,k2,k3)
+  km<-mergefile(k)
+  km[is.na(km$Freq.y),]$Freq.y<-0
+  km[is.na(km$Freq),]$Freq<-0
+  filter(km,Freq.x!=0)
+}
