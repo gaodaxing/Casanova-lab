@@ -1,0 +1,18 @@
+url<-"http://www.uniprot.org/uniprot/Q16584#showFeaturesTable"
+tab<-readHTMLTable(url,stringsAsFactors=F)
+
+converttab<-function(xtab,column){
+  xtab<-as.data.frame(xtab[column])
+  tab<-xtab[,1:4]
+  tab[[1]]<-sapply(strsplit(xtab[[1]],"</a></p>"),"[",2)
+  
+  tab[[4]]<-sapply(strsplit(xtab[[4]],"PROSITE|\\."),"[",1)
+  tab
+  print (tab)
+}
+
+converttab(tab,"sitesAnno_section")
+converttab(tab,"regionAnno_section")
+converttab(tab,"Region_section")
+converttab(tab,"Mutagenesis_section")
+converttab(tab,"domainsAnno_section")
