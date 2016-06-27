@@ -1,0 +1,8 @@
+findallcpht<-function(list){
+  
+  result<-do.call(findcpht,as.list(t(list[1,])))
+  for (i in 2:nrow(list)){
+    rslt<-do.call(findcpht,as.list(t(list[i,])))
+  result<-rbind(result,rslt)}
+  result
+}
