@@ -1,0 +1,42 @@
+procsv<-function(directory,highfdir){
+  
+  file<-read.csv(directory) #read csv
+  highf<-read.csv(highfdir) #read lowfreq file
+  file1<-file[,c(1,3,4,7,9,15,31,34,16:25)] #sample, chr, pos, alt, gene, zygo, cadd, AD
+  file1[,9:18]<-apply(file1[,9:18],2,function(x){sapply(x,function(y){if(is.na(y)){y<-0} else {y}})})
+  file2<-filter(file1,X1000GenomesPhase3_Freq<0.05&ExAC_Freq<0.05&ESP6500All_Freq<0.05&ExAC_AFR_AF<0.05&ExAC_AMR_AF<0.05&ExAC_EAS_AF<0.05&ExAC_FIN_AF<0.05&ExAC_NFE_AF<0.05&ExAC_OTH_AF<0.05&ExAC_SAS_AF<0.05)
+  #file2<-file1[file1[,7]!="LOW",]
+  file2$Var<-paste(file2$Chr,file2$Pos,file2$Alt,file2$gene,sep=";")
+ 
+  file3<-file2[!(file2$Var %in% highf[[2]]),]   #exclude high freq
+  
+  ADlis<-strsplit(as.character(file3$AD),",")
+  file3$AD1<-sapply(ADlis,"[",1)
+  file3$AD2<-sapply(ADlis,"[",2)
+  file3$AD3<-sapply(ADlis,"[",3)
+  file3<-mutate(file3,AD1=as.numeric(AD1))
+  file3<-mutate(file3,AD2=as.numeric(AD2))
+  file3[is.na(file3$AD3),]$AD3<-0
+  file3<-mutate(file3,AD3=as.numeric(AD3))
+  file3<-filter(file3,((AD2>2&AD2/AD1>0.333)|(AD2==2&(AD1==2|AD1==3))|(AD3>2&(AD2+AD3)/AD1>0.36))) #
+  file3<-filter(file3,zygo=="het"|(zygo=="hom"&AD1/AD2<0.25))
+
+  file4<-file3[,c(1,5,6)] #sample, gene, zygo
+  
+  #file5<-file4[duplicated(file4)|file4$zygo=="hom",][,c(1,2)] #take multiple het or hom 
+  file6<-group_by(file4,Sample,gene)
+  file7<-filter(file6,n()>1|zygo=="hom")
+  uniq<-unique(file7[,1:2])
+  result<-as.data.frame(table(uniq$gene))
+  result<-filter(result,Freq>0)
+  result
+  uniq[,2:1]
+  file3
+  
+  
+  
+  #uniq<-unique(file6)
+  #result<-as.data.frame(table(uniq$gene))
+  #result
+
+}
