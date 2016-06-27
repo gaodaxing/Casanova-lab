@@ -1,0 +1,12 @@
+findpathway<-function(lis){
+  flag<-0
+  for (ID in lis[[1]]){
+    ht<-htmlTreeParse(paste("http://pathcards.genecards.org/search/results/",ID,sep=""),useInternalNodes = TRUE)
+    rt<-xmlRoot(ht)
+    pathway<-xpathSApply(rt,"//strong",xmlValue)[1:20]
+    if(flag==0){result<-pathway
+    flag<-1}
+    else result<-rbind(result,pathway)
+  }
+  result
+}
