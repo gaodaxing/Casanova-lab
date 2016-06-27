@@ -1,0 +1,32 @@
+denovo<-function(directory,freq) {
+  R1<-data.frame(matrix(rep(NA,100*28),nrow=100))
+  R2<-data.frame(matrix(rep(NA,100*28),nrow=100))
+  highf<-read.csv(paste("/Users/daxinggao/Desktop/K_AD_Freq<0.001/hifreq>",freq,".csv",sep=""))
+  j<-1
+  for (i in 1:28){
+    filename<-paste(directory,"/No.",i,".csv",sep="")
+    if (file.exists(filename)){
+      Ko<-read.csv(filename)
+      Ko$Var<-paste(Ko$Chr,Ko$Pos,Ko$Alt,Ko$gene,sep=";")
+      K<-Ko[!(Ko$Var %in% highf[[1]]),]
+      ADlis<<-strsplit(as.character(K$AD),",")
+      K$AD1<-sapply(ADlis,"[",1)
+      K$AD2<-sapply(ADlis,"[",2)
+      K$AD3<-sapply(ADlis,"[",3)
+      K<-mutate(K,AD1=as.numeric(AD1))
+      K<-mutate(K,AD2=as.numeric(AD2))
+      K<-filter(K,(AD2>2&AD2/AD1>0.3)|(AD2==2&(AD1==2|AD1==3))|((!is.na(AD3)&(AD2+AD3>3))))
+      K<-group_by(K,gene)
+      K1<-filter(K,n()==1)$gene
+      K2<-filter(K,n()>1)$gene
+      R1[1:length(K1),j]<-as.character(K1)
+      if(length(K2)>0){R2[1:length(K2),j]<-as.character(K2)}
+      j<-j+1
+      #write.csv(K2,paste(directory,"/No.",i,"multiple.csv",sep=""))
+    }
+  }
+  R1
+  
+  #R<-list(R1,R2)
+  #write.csv(R1,paste(directory,"/denovoanalysisfreq",freq,"R.csv",sep=""))
+}
