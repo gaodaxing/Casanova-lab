@@ -1,0 +1,83 @@
+cpht<-function(Gene, pat, par1, par2){
+  Pat<-read.csv(paste("/Users/daxinggao/Desktop/K_exonic/",pat,".csv",sep=""))
+  Par1<-read.csv(paste("/Users/daxinggao/Desktop/K_exonic/",par1,".csv",sep=""))
+  
+  if (par2==""){cat("*************************only one parent available*************************\n")
+    PatG<-Pat[Pat$gene==Gene,]
+    NSYN<-c("stop-gained","stop-lost","start-lost","indel-frameshift","indel-inframe","exon_deleted","essential_splicing","missense","start_gained")
+    PatGN<-PatG[is.element(PatG$fuction,NSYN),]
+    LoF1<-mapply(function(x,y){x||y},is.na(PatGN$X1000GenomesPhase3_AF),PatGN$X1000GenomesPhase3_AF<0.03)
+    LoF2<-mapply(function(x,y){x||y},is.na(PatGN$ExAC_AF),PatGN$ExAC_AF<0.03)
+    LowT<-mapply(function(x,y){x&&y},LoF1,LoF2)
+    PatGN<-PatGN[LowT,]
+    Par1G<-Par1[Par1$gene==Gene,]
+    Par1GN<-Par1G[is.element(Par1G$fuction,NSYN),]
+    Par1pat<-Par1GN[is.element(Par1GN$pos,PatGN$pos),]
+    
+    cat("*************************variants found in patient*************************\n")
+    print(PatGN[,c(1:3,6,7,11,13:15,29)])
+    
+    if(nrow(PatGN)==nrow(Par1pat)){cat("\n*************************on same allele*************************\n")
+      print(Par1pat[,c(1:3,6,7,11,13:15,29)])
+      }
+    else if(nrow(Par1pat)==0){cat("\n*************************not found in parent*************************\n")
+      print(PatGN[,c(1:3,6,7,11,13:15,29)])
+      }
+    else {cat("\n*************************Pontential compound, variants on one parent are*************************\n")
+      print(Par1pat[,c(1:3,6,7,11,13:15,29)])
+      cat("\n*************************The other parent are*************************\n")
+      print(PatGN[!is.element(PatGN$pos,Par1GN$pos),][,c(1:3,6,7,11,13:15,29)])
+      
+    }
+    result<-c(Gene,pat,sum(PatGN$zygo=="hom"),sum(PatGN$zygo=="het"),par1,nrow(Par1pat),0,0)
+  }
+  else{
+  Par2<-read.csv(paste("/Users/daxinggao/Desktop/K_exonic/",par2,".csv",sep=""))
+  
+  PatG<-Pat[Pat$gene==Gene,]
+  NSYN<-c("stop-gained","stop-lost","start-lost","indel-frameshift","indel-inframe","exon_deleted","essential_splicing","missense","start_gained")
+  PatGN<-PatG[is.element(PatG$fuction,NSYN),]
+  LoF1<-mapply(function(x,y){x||y},is.na(PatGN$X1000GenomesPhase3_AF),PatGN$X1000GenomesPhase3_AF<0.03)
+  LoF2<-mapply(function(x,y){x||y},is.na(PatGN$ExAC_AF),PatGN$ExAC_AF<0.03)
+  LowT<-mapply(function(x,y){x&&y},LoF1,LoF2)
+  PatGN<-PatGN[LowT,]
+  
+  Par1G<-Par1[Par1$gene==Gene,]
+  Par1GN<-Par1G[is.element(Par1G$fuction,NSYN),]
+  
+  Par2G<-Par2[Par2$gene==Gene,]
+  Par2GN<-Par2G[is.element(Par2G$fuction,NSYN),]
+  
+  Par1pat<-Par1GN[is.element(Par1GN$pos,PatGN$pos),]
+  Par2pat<-Par2GN[is.element(Par2GN$pos,PatGN$pos),]
+  
+  cat("*************************variants found in patient*************************\n")
+  print(PatGN[,c(1:3,6,7,11,13:15,29)])
+  
+  if((nrow(Par1pat)+nrow(Par2pat))==0){
+    cat("\n*************************No allele on both par*************************\n")
+    }
+  else if(nrow(Par1pat)==0){
+    cat("\n*************************No variants on Par1*************************\n")
+    cat("\n*************************Variants on Par2 are*************************\n")
+    print(Par2pat[,c(1:3,6,7,11,13:15,29)])
+    }
+  else if(nrow(Par2pat)==0){
+    cat("\n*************************No variants on Par2*************************\n")
+    cat("\n*************************Variants on Par1 are*************************\n")
+    print(Par1pat[,c(1:3,6,7,11,13:15,29)])
+    }
+  else{cat("*************************On both par.************************* \n *************************Variants on Par1 are*************************\n")
+    print(Par1pat[,c(1:3,6,7,11,13:15,29)])
+    cat("\n*************************Variants on Par2 are*************************\n")
+    print(Par2pat[,c(1:3,6,7,11,13:15,29)])
+  }
+  result<-c(Gene,pat,sum(PatGN$zygo=="hom"),sum(PatGN$zygo=="het"),par1,nrow(Par1pat),par2,nrow(Par2pat))
+  }
+  #denovo<-sum(!(PatGN$pos %in% c(as.vector(Par1GN$pos),as.vector(Par2GN$pos))))
+  #rslt<-c(Gene,pat,denovo)
+  #rslt<-filter(PatGN,!(PatGN$pos %in% c(as.vector(Par1GN$pos),as.vector(Par2GN$pos))))
+  #rslt
+  #result<-cbind(pat,PatGN[,c(1:3,6,7,11,13:15,29)])
+  result
+  }
