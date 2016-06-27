@@ -1,0 +1,25 @@
+searchMGI<-function(MGIID){
+  flag<-0
+  for (ID in as.character(MGIID[[1]])){
+  urlmgi<-paste("http://www.informatics.jax.org/marker/phenotypes/MGI:",ID,sep="")
+  tables<-readHTMLTable(urlmgi,stringsAsFactors=F)
+  pheno<-as.data.frame(tables$phenotypeTable)
+  if(length(pheno)!=0){
+    for (i in 1:nrow(pheno)){
+      if(!is.na(pheno[[3]][i])){
+      pheno[i,]<-c(t(pheno[i,][-1]),NA)
+        }
+      }
+   if(flag==0){result<-t(pheno$`Allelic CompositionGenetic Background`[1:50])
+      flag<-1}
+    else {result<-rbind(result,t(pheno$`Allelic CompositionGenetic Background`[1:50]))}
+  }
+  else {if(flag==0){result<-matrix(rep(NA,50),nrow=1,ncol=50)
+  flag<-1} 
+    else {result<-rbind(result,rep(NA,50))}
+    }
+  }
+  result<-cbind(MGIID[,1],as.data.frame(result))
+  result<-apply(result,2,function(x)gsub("\t|\n","",x))
+  result
+}
