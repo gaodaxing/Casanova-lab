@@ -1,0 +1,15 @@
+searchMGI2<-function(MGIID){
+  flag<-0
+  for (ID in as.character(MGIID[[1]])){
+    urlmgi<-paste("http://www.informatics.jax.org/marker/MGI:",ID,sep="")
+    mgitree<-htmlTreeParse(urlmgi,useInternalNodes = T)
+    mgiroot<-xmlRoot(mgitree)
+    mginode<-getNodeSet(mgiroot,"//div[@class='sgHeaderDiv bold sgSmooth']")
+    rslt<-xmlSApply(mginode,xmlValue)[1:40]
+    if(flag==0){result<-rslt
+    flag<-1}
+    else result<-rbind(result,rslt)
+  }
+  result<-cbind(MGIID,result)
+  data.frame(lapply(result,as.character),stringsAsFactors = F)
+}
