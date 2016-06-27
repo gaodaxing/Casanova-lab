@@ -1,0 +1,9 @@
+searchpubmed<-function(genelist){
+  
+  #function(x)ArticleTitle(EUtilsGet(EUtilsSummary(paste(x,"AND (immune OR immunity OR virus OR inflammatory OR cardiovascular OR vascular OR interferon)",sep=" "))))
+  list<-lapply(genelist[[1]],function(x)ArticleTitle(EUtilsGet(EUtilsSummary(paste(x,"AND (immune OR immunity OR virus OR inflammatory OR cardiovascular OR vascular OR interferon)",sep=" "))))[1:5])
+  df<-t(as.data.frame(list))
+  rownames(df)<-genelist[[1]]
+  df
+  
+}
