@@ -1,0 +1,6 @@
+mergefile<-function(k){
+  
+  kt<-k[[1]]
+  for (i in 1:2) kt<-merge(kt,k[[i+1]],by="Var1",all.x=T)
+  kt
+}
