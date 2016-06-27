@@ -1,7 +1,7 @@
 # Casanova-lab
 ##R scripts
 
-### csv files
+### csv files processing
 1.findallcpht
 
   findcpht
@@ -9,6 +9,11 @@
   cpht
   
 2.denovo
+3.procsv
+  
+  proandmergecsv
+  
+  mergefile
 
 
 ### phenotype query
