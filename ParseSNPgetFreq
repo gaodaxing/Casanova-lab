@@ -1,0 +1,14 @@
+library(XML)
+library(bitops)
+library(RCurl)
+calculatefreq<-function(ID){
+  result=NULL
+  for(i in 1:nrow(ID)){
+url=paste("https://www.ncbi.nlm.nih.gov/projects/SNP/snp_ref.cgi?rs=",ID[i,1],sep="")
+xdata=getURL(url)
+##tab<-htmlTreeParse(xdata,useInternalNodes = T)
+tab=readHTMLTable(xdata)
+result=rbind(tab$Diversity[2,4],tab$Diversity[2,ncol(tab$Diversity)-1])
+  }
+  return(cbind(ID,result))
+}
